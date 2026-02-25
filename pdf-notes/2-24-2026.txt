@@ -1,0 +1,5 @@
+2/24/2026
+Learned to installed express
+Understand what express is used for which is a way to get information from the server side to the front end when the client requests it. 
+Import express from “express” // to import the express library
+Const app = express() // to access express
