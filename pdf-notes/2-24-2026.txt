@@ -1,3 +1,13 @@
+2/25/2026
+Learning basics Get request
+Learned to create route for client to be able to request certain information
+There a different type of request methods - we may want to update data, add data and so on
+app.get(‘route’, request handler function) the function takes 2 argument (request object, response object)
+
+Just learned to response to the main point ‘/’ using response.send(“Hello world”);
+To create a route simply do app.get(“/routeName”)
+Respond back using jason still like {msg: “hello world”}
+
 2/24/2026
 Learned to installed express
 Understand what express is used for which is a way to get information from the server side to the front end when the client requests it. 
