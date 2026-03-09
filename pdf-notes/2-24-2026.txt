@@ -1,3 +1,89 @@
+3/9/2026
+56:00 - 1:09
+
+Put Request (updates data)
+We are updating the entire resource/ entire user record so both username and displayName
+Patch Request 
+also update data but only partially. Instead of updating the entire user record, you could just be updating only the username, not displayName for instance
+Delete Request
+Delete the record / resource 
+
+Really Important, the put request updates the whole thing. So using mockList we have the following components. We have id, username and displayName. If we use a put request but we only show the username. It will delete the id and the displayName. Make sure that if you decide to use the put request, ensure all the components are written so no data is lost.
+
+app.put("/api/users/:id"), (request, response) => {
+  const {body, params: {id}} = request;
+
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400); // checks if parsedId is actually a num
+
+  const findUserIndex = mockUsers.findIndex( (user) => user.id === parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(404);
+
+  mockUsers[findUserIndex] = { id: parsedId, ...body}; // kept the id the same
+
+  return response.sendStatus(200);
+}
+
+42:55 - 56:00
+Post request (aka create data whereas get request was just reading data)
+
+Instead of doing get request on the browser, he suggests installing “Thunder Client” on vscode do get and post request directly on vscode. Pretty cool!
+
+Let’s say we make a post request and send json of the following
+
+{
+	“username” : “fakeUserName”,
+	“displayName” : “fake display name”
+}
+
+We will add it to our mockUser list from earlier
+
+app.post('/api/users', (request, response) => {
+  const {body} = request; // get the json message
+  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body}; /* manually add the id but …does the rest since it matches the list’s format  */
+  mockUsers.push(newUser); // add it into the list
+  return response.status(201).send(newUser);
+})
+
+
+30:00 - 42:55
+Query Params
+‘?’ at the end of a website denotes a query string. It’s for key value pairs. We can use ‘&’ to add more of those pairs.
+
+Essentially it means we get some kind of key value pair to the server side and we can do something about it. For instance we can do 
+http://localhost:3000/?filter=username&value=an
+Which would create a json request {filter: ‘username’, value:’an’} where we can decide what to do with those values.
+
+Let’s say using the example above, we can check if filter and value “exist” as in they are on the website route (in this case yes) and than filter our our premade list of username.
+
+Say we have a list of username and displayName as such:
+
+const mockUsers = [
+  {id: 1, username: "anson", displayName: "Anson"},
+  {id: 2, username: "bobl", displayName: "Bob2"},
+  {id: 3, username: "demonslayer3000", displayName: "Bob3"},
+];
+
+// we can filter out our list based on the value of “value” which is “an” in this example. It would go through the list and return back the list with “an” in the username
+
+app.get('/', (request, response)=>{
+  console.log(request.query);
+  const{ query: {filter, value} } = request;
+  
+  if (filter && value) return response.send(
+    mockUsers.filter( (user) => // no {} else it won't work
+      // filter al the filter object that matches value
+      user[filter].includes(value)
+    )
+  )
+  // return normal is there's no filter AND value in the route
+  return response.send(mockUsers);
+
+});
+
+
+
 2/25/2026
 Learning basics Get request
 Learned to create route for client to be able to request certain information
@@ -7,6 +93,8 @@ app.get(‘route’, request handler function) the function takes 2 argument (re
 Just learned to response to the main point ‘/’ using response.send(“Hello world”);
 To create a route simply do app.get(“/routeName”)
 Respond back using jason still like {msg: “hello world”}
+
+
 
 2/24/2026
 Learned to installed express
