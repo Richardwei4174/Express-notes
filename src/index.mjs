@@ -4,8 +4,20 @@ const app = express(); // to use express
 
 app.use(express.json())
 
-const PORT = process.env.PORT || 3000;
 
+const loggingMiddleware = (request, response, next) => {
+  console.log(`${request.method} - ${request.url}`);
+  next(); // next means we are done with middleware
+}
+
+app.use(loggingMiddleware);
+
+const resolveIndexByUserId = (request, response, next) => {
+
+
+}
+
+const PORT = process.env.PORT || 3000;
 
 const mockUsers = [
   {id: 1, username: "anson", displayName: "Anson"},
@@ -30,8 +42,8 @@ app.get('/', (request, response)=>{
 
 app.get("/api/users", (request, response)=> {
   response.send([
-    {id: 1, username: "Richardwei127", displayname: "Richardwei4174"},
-    {id: 2, username: "Richardwei1272", displayname: "Richardwei41742"},
+    {id: 1, username: "Richardwei127", displayName: "Richardwei4174"},
+    {id: 2, username: "Richardwei1272", displayName: "Richardwei41742"},
   ]);
 });
 
@@ -57,7 +69,25 @@ app.listen(PORT, ()=> {
 
 }); 
 
-app.put("/api/users/:id"), (request, response) => {
+app.get("/api/users/:id", (request, response) => {
+  const {params: {id }} = request;
+  const parsedId = parseInt(id);
+
+  if(isNaN(parsedId)) {
+    return response.sendStatus(400);
+  }
+
+  const foundUser = mockUsers.find( (user) => user.id === parsedId);
+
+  if (!foundUser){
+    return response.sendStatus(404);
+  }
+
+  return response.send(foundUser);
+
+})
+
+app.put("/api/users/:id", (request, response) => {
   const {body, params: {id}} = request;
 
   const parsedId = parseInt(id);
@@ -70,4 +100,38 @@ app.put("/api/users/:id"), (request, response) => {
   mockUsers[findUserIndex] = { id: parsedId, ...body}; // kept the id the same
 
   return response.sendStatus(200);
-}
+});
+
+
+app.patch('/api/users/:id' ,(request, response) =>{
+  const {body, params: {id}} = request;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400);
+  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(404);
+
+  // this is the main difference from the put response
+  // We are only updating partially
+
+  mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body}; // only changes what's in the request which is in body
+
+  return response.sendStatus(200);
+});
+
+app.delete("/api/users/:id", (request, response) => {
+
+  const {params: {id}} = request;
+
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400);
+
+  const findUserIndex = mockUsers.findIndex((users) => users.id == parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(400);
+
+  mockUsers.splice(findUserIndex, 1); // we delete the user record with that specific id
+  return response.sendStatus(200);
+
+});
+

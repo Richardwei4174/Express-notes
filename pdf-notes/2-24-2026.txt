@@ -1,5 +1,51 @@
+3/10/2026
+
+1:25:00 - 
+MiddleWare - the middle process between other processes’
+
+MiddleWare MUST be registered before the route. app.use() for middleware before all the requests for the routes. Like before app.get; app.post; app.path; app.delete and so on. 
+
+next() is a middleWare function to say that the current middle is done and we can start the next middleware.
+
+
+
+1:19:00 - 1:25:00
+Delete Request. To delete a record(s) or resource(s)
+
+app.delete("/api/users/:id", (request, response) => {
+
+  const {params: {id}} = request;
+
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400);
+
+  const findUserIndex = mockUsers.findIndex((users) => users.id == parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(400);
+
+  mockUsers.splice(findUserIndex, 1); // we delete the user record with that specific id
+  return response.sendStatus(200);
+
+})
+
+The main thing would be the .splice() function where the first argument is the id or index and the second argument would be how many elements we want to delete AFTER that element. Meaning if we don’t put a 1 for instance, it would delete everything after that index!
+
+
+1:09:00 - 1:19:00
+Patch Request
+Update an entity, resource, record partially.
+
+Unlike Put Request where it replaces the whole record of id, username and DisplayName which requires the put request to ensure all components are written. The Patch request, we only need to send the component we want to update or change. Other components won’t be affected. Say I only sent the following
+
+{
+	“username”: “fake_username”
+}
+
+Notice how we didn’t include displayName. It would only touch username, it would leave displayName and id alone.
+
+
 3/9/2026
-56:00 - 1:09
+56:00 - 1:09:00
 
 Put Request (updates data)
 We are updating the entire resource/ entire user record so both username and displayName
