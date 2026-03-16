@@ -1,5 +1,6 @@
 import express, { request } from "express";
-
+import {query, validationResult, body, matchedData, checkSchema} from "express-validator";
+import {createUserValidationSchema} from './utils/validationSchemas.mjs'
 const app = express(); // to use express
 
 app.use(express.json())
@@ -13,9 +14,16 @@ const loggingMiddleware = (request, response, next) => {
 app.use(loggingMiddleware);
 
 const resolveIndexByUserId = (request, response, next) => {
+  const {params: {id},} = request;
 
+  const parsedId = parseInt(id);
 
-}
+  if(isNaN(parsedId)) return response.sendStatus(400);
+  const findUserIndex = mockUsers.findIndex( (user) => user.id === parsedId);
+  if (findUserIndex === -1) return response.sendStatus(404);
+  request.findUserIndex = findUserIndex;
+  next(); // this mean this middleware is done
+};
 
 const PORT = process.env.PORT || 3000;
 
@@ -40,16 +48,26 @@ app.get('/', (request, response)=>{
 
 });
 
-app.get("/api/users", (request, response)=> {
+app.get("/api/users",query('filter').isString().notEmpty(), (request, response)=> {
+  const result = validationResult(request);
+  console.log(result);
   response.send([
     {id: 1, username: "Richardwei127", displayName: "Richardwei4174"},
     {id: 2, username: "Richardwei1272", displayName: "Richardwei41742"},
   ]);
 });
 
-app.post('/api/users', (request, response) => {
-  const {body} = request;
-  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body}; // ...body, kinda like just fill in what the data says
+app.post('/api/users',checkSchema(createUserValidationSchema)
+  , (request, response) => {
+    const result = validationResult(request);
+    console.log(result);
+
+    // if result is NOT empty than there must be some errors or problem
+    if(!result.isEmpty())
+      return response.status(400).send({errors: result.array()});
+    const data = matchedData(request);
+    console.log(data); 
+  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...data}; // ...body, kinda like just fill in what the data says
   
   mockUsers.push(newUser);
   return response.status(201).send(newUser);
@@ -69,67 +87,35 @@ app.listen(PORT, ()=> {
 
 }); 
 
-app.get("/api/users/:id", (request, response) => {
-  const {params: {id }} = request;
-  const parsedId = parseInt(id);
-
-  if(isNaN(parsedId)) {
-    return response.sendStatus(400);
-  }
-
-  const foundUser = mockUsers.find( (user) => user.id === parsedId);
-
-  if (!foundUser){
+app.get("/api/users/:id",resolveIndexByUserId, (request, response) => {
+  const {findUserIndex} = request;
+  const findUser = mockUsers[findUserIndex];
+  if (!findUser){
     return response.sendStatus(404);
   }
 
-  return response.send(foundUser);
+  return response.send(findUser);
 
 })
 
-app.put("/api/users/:id", (request, response) => {
-  const {body, params: {id}} = request;
+app.put("/api/users/:id",resolveIndexByUserId,  (request, response) => {
+  const {body, findUserIndex} = request;
 
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return response.sendStatus(400);
-
-  const findUserIndex = mockUsers.findIndex( (user) => user.id === parsedId);
-
-  if (findUserIndex === -1) return response.sendStatus(404);
-
-  mockUsers[findUserIndex] = { id: parsedId, ...body}; // kept the id the same
-
+  mockUsers[findUserIndex] = { id: mockUsers[findUserIndex].id, ...body}; // kept the id the same
   return response.sendStatus(200);
 });
 
 
-app.patch('/api/users/:id' ,(request, response) =>{
-  const {body, params: {id}} = request;
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return response.sendStatus(400);
-  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex === -1) return response.sendStatus(404);
-
-  // this is the main difference from the put response
-  // We are only updating partially
-
+app.patch('/api/users/:id',resolveIndexByUserId ,(request, response) =>{
+  const {body, findUserIndex} = request;
   mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body}; // only changes what's in the request which is in body
 
   return response.sendStatus(200);
 });
 
-app.delete("/api/users/:id", (request, response) => {
+app.delete("/api/users/:id", (request,resolveIndexByUserId, response) => {
 
-  const {params: {id}} = request;
-
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return response.sendStatus(400);
-
-  const findUserIndex = mockUsers.findIndex((users) => users.id == parsedId);
-
-  if (findUserIndex === -1) return response.sendStatus(400);
-
+  const {findUserIndex} = request;
   mockUsers.splice(findUserIndex, 1); // we delete the user record with that specific id
   return response.sendStatus(200);
 

@@ -1,6 +1,45 @@
+3/15/2026
+1:48:00 -2:20:00
+Validation
+
+Sometimes the data you expect is not the data that you received. Validation is important for security in case someone tries to bypass it by sending a request outside of the client front end side. Ensure that the information we are receiving is the information that we are expecting. 
+
+To download in vscode type the following in the terminal:
+npm i express-validator
+To use it we would need to import the following:
+	import {query, validationResult} from "express-validator"; // to help validate
+Those imported functions are middle ware which means we are calling them before we call our request functions 
+
+query(‘filter’) object has many builtin validator like query(‘filter’).isString() to check if the input is a string
+
+It can also work as a chain to validate multiple things at once such as
+	query(‘filter’).isString().notEmpty()
+So it is a string and also not empty
+
+Key thing to note: query() would tell you if there’s a problem but it won’t handle it for you so you’d need to call validationResult() to help handle it for you
+
+Along with different filter chains, there’s .withMessage() where you can write a message for specific errors. Here’s a snippet of a code to show as an example:
+
+/*
+body('username')
+  .notEmpty()
+  .withMessage("Username cannot be empty")
+  .isLength({min:5, max:32})
+  .withMessage(
+    "Username must be at least 5 chars with a max of 32 char"
+  )
+  .isString()
+  .withMessage("Username must be a string!")
+*/
+
+
+1:37:00 - 1:48:00
+MiddleWare - continue
+Essentially, middleware is code that executes before executing a request function. This helps remove any duplications on request that require to do the same steps initially.
+
 3/10/2026
 
-1:25:00 - 
+1:25:00 - 1:37:00
 MiddleWare - the middle process between other processes’
 
 MiddleWare MUST be registered before the route. app.use() for middleware before all the requests for the routes. Like before app.get; app.post; app.path; app.delete and so on. 
@@ -54,7 +93,7 @@ also update data but only partially. Instead of updating the entire user record,
 Delete Request
 Delete the record / resource 
 
-Really Important, the put request updates the whole thing. So using mockList we have the following components. We have id, username and displayName. If we use a put request but we only show the username. It will delete the id and the displayName. Make sure that if you decide to use the put request, ensure all the components are written so no data is lost.
+Really Important, the put request/ updates the whole thing. So using mockList we have the following components. We have id, username and displayName. If we use a put request but we only show the username. It will delete the id and the displayName. Make sure that if you decide to use the put request, ensure all the components are written so no data is lost.
 
 app.put("/api/users/:id"), (request, response) => {
   const {body, params: {id}} = request;

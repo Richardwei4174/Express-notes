@@ -7,7 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon ./src/index.mjs",
     "start": "node ./src/index.mjs"
-
   },
   "repository": {
     "type": "git",
@@ -16,16 +15,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Richardwei4174/Express-notes/issues"
   },
   "homepage": "https://github.com/Richardwei4174/Express-notes#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-validator": "^7.3.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  },
-  "type": "module"
+  }
 }
