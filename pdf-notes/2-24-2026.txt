@@ -1,3 +1,44 @@
+3/16/2026
+2:20:00 - 2:39:00
+Routers
+
+We would like to group together by domain instead of having all the requests in one file which can get messy. The router fixes that. The routes group the requests.
+
+** We can register the request on the router than we can register the router in express
+
+To use the router, since we want to group them we’ll use it in a different file. We’ll need the following header to use router:
+	import {response, Router} from "express";
+So it’s the same thing using express App() but instead of app, we use Router(). Everything else is the same. 
+
+// notice all the code is the same except we replaced app with router
+router.get("/api/users",
+  query("filter")
+    .isString()
+    .notEmpty()
+    .withMessage("Must not be empty")
+    .isLength({min: 3, max:10})
+    .withMessage("Must be at least 3-10 char"),
+    (request, response) => {
+      const result = validationResult(request);
+      console.log(result);
+      const {
+        query: {filter, value },
+      } = request;
+      if (filter && value)
+        return response.send(
+          mockUsers.filter( (user) => user[filter].includes(value))
+        );
+      return response.send(mockUsers);  
+    }
+);
+
+Now to register it in the main file, we would need to import it like so:
+	import usersRouter from "./routes/users.mjs";
+Then we can use it like so:
+	app.use(usersRouter);
+
+
+
 3/15/2026
 1:48:00 -2:20:00
 Validation
