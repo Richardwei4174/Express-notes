@@ -16,6 +16,13 @@ router.get("/api/users",
     .isLength({min: 3, max:10})
     .withMessage("Must be at least 3-10 char"),
     (request, response) => {
+      request.sessionStore.get(request.session.id, (err, sessionData) => {
+        if (err){
+          console.log(err);
+          throw err;
+        }
+        console.log(sessionData);
+      });
       const result = validationResult(request);
       console.log(result);
       const {

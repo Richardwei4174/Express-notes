@@ -1,3 +1,74 @@
+hi
+3/21/2026
+2:59:00 -
+Sessions
+
+Sessions represent the duration the user is on the website.
+By default, http is stateless meaning that we don’t know who is sending the request. We would need to track requests and know where it’s coming from. 
+
+Download the following to use express session in the terminal
+	npm i express-session
+Header include the following:
+	import session from 'express-session';
+
+ request.session.visited = true;
+ // will use the same session id instead of constantly generate a new id so we can track the user
+Without the above code, the program seems to generate a new session id with every request. This takes up memory and we can’t keep track of the user on the website. 
+
+//Create a fake authentication 
+
+// the simple authentication to check if the user exist and the password is correct
+app.post('/api/auth', (request, response) => {
+  const {body: {username, password}}  = request;
+
+  const findUser = mockUsers.find((user) => user.username === username);
+  if (!findUser || findUser.password !== password) return response.status(401);
+
+  request.session.user = findUser;
+  return response.status(200).send(findUser);
+
+});
+
+// check if the user as been authenticated
+app.get('/api/auth/status', (request, response) => {
+  request.sessionStore.get(request, sessionID, (err, session) => {
+    console.log(session);
+  });
+  return request.session.user 
+  ? response.status(200).send(request.session.user)
+  : response.status(400).send({msg: "Not Authenticated"});
+});
+
+
+3/17/2026
+2:39:00 - 2:59:00
+Cookies
+
+Http cookies - small pieces of data that a web server sends to the browser. The browser can store the cookie. The server can tell who’s cookie it belongs to and  dynamically render based on the cookie. It helps the browser to identify the user.
+
+Install cookie parser to parse through cookie(in the terminal):
+npm i cookie-parser
+
+To use it we need the header:
+	import cookieParser from "cookie-parser";
+
+app.use(cookieParser()); // to enable cookieParser middleware
+
+When you send a cookie, the server would check for the cookie and if the cookie is the correct value and exists then it will send the correct information back to the users.
+
+Here’s an example:
+router.get("/api/products",(request, response)=>{
+  console.log(request.headers.cookie);
+  console.log(request.cookies);
+  if (request.cookies.hello && request.cookies.hello === 'world'){
+    return response.send([{id: 123, name: 'cucumber', price: "12.99"},]);
+  }
+  return response.send({msg: 'Sorry, you need the correct cookie'});
+});
+// check to see if the cookie with the key hello exists and see if the value is ‘world’. 
+// if it is than we would send the data with the cucumber components but 
+// if it doesn’t exists then we would send the sorry message
+
 3/16/2026
 2:20:00 - 2:39:00
 Routers
