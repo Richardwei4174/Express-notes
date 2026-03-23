@@ -3,6 +3,8 @@ import { mockUsers } from "./utils/constants.mjs";
 import routes from "./routes/index.mjs";
 import cookieParser from "cookie-parser";
 import session from 'express-session';
+import passport from "passport";
+import "./strategies/local-strategy.mjs";
 
 const app = express(); // to use express
 
@@ -16,6 +18,8 @@ app.use(session({
     maxAge: 60000 * 60,
   }
 }));
+app.use(passport.initialize());
+app.use(session());
 app.use(routes);
 
 
@@ -74,4 +78,46 @@ app.get('/api/auth/status', (request, response) => {
   return request.session.user 
   ? response.status(200).send(request.session.user)
   : response.status(400).send({msg: "Not Authenticated"});
+});
+
+app.post('/api/cart', (request, response) => {
+  if (!request.session.user) return response.sendStatus(401);
+
+  const {body:item} = request;
+
+  const {cart} =  request.session;
+  if (cart){
+    cart.push(item);
+  } else {
+    request.session.cart = [iteam];
+    return response.sendStatus(201).send(item);
+  }
+});
+
+app.get('/api/cart', (request, response) => {
+  if (!request.session.user) return response.sendStatus(401);
+  return response.send(request.sessionID.cart ?? []);
+});
+
+app.post(
+  '/api/auth',
+  passport.authenticate("local"),
+  (request, response) => {
+    response.send(request);
+  }
+);
+
+app.get('/api/auth/status', (request, response) => {
+  console.log(`Inside /auth/status endpoint`);
+  console.log(request.user);
+  if (request.user) return response.send(request.user);
+  return response.sendStatus(401);
+})
+
+app.post("/api/auth/logout" , (request, response)=> {
+  if (!request.user) return response.sendStatus(401);
+  request.logOut( (err) => {
+    if (err) return response.sendStatus(400);
+    response.sendStatus(200);
+  }); 
 });

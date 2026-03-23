@@ -1,6 +1,5 @@
-hi
 3/21/2026
-2:59:00 -
+2:59:00 - 3:38:00
 Sessions
 
 Sessions represent the duration the user is on the website.
