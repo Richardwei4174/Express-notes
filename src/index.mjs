@@ -5,8 +5,14 @@ import cookieParser from "cookie-parser";
 import session from 'express-session';
 import passport from "passport";
 import "./strategies/local-strategy.mjs";
+import mongoose from "mongoose";
 
 const app = express(); // to use express
+
+mongoose.connect("mongodb://127.0.0.1:27017/testdb")
+  .then(() => console.log("Connected to Database"))
+  .catch((err) => console.log(`Error: ${err}`));
+
 
 app.use(express.json())
 app.use(cookieParser());
@@ -19,7 +25,7 @@ app.use(session({
   }
 }));
 app.use(passport.initialize());
-app.use(session());
+app.use(passport.session());
 app.use(routes);
 
 

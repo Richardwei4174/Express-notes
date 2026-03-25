@@ -3,6 +3,7 @@ import { query, validationResult, checkSchema, matchedData } from "express-valid
 import {mockUsers} from "../utils/constants.mjs"
 import {createUserValidationSchema} from "../utils/validationSchemas.mjs";
 import {resolveIndexByUserId} from "../utils/middlewares.mjs";
+import {User} from "../mongoose/schemas/user.mjs";
 
 "express-validator";
 
@@ -49,20 +50,19 @@ router.get("/api/users/:id",resolveIndexByUserId, (request, response) => {
 
 
 router.post('/api/users',checkSchema(createUserValidationSchema)
-  , (request, response) => {
+  , async (request, response) => {
     const result = validationResult(request);
     console.log(result);
-
-    // if result is NOT empty than there must be some errors or problem
-    if(!result.isEmpty())
-      return response.status(400).send({errors: result.array()});
-    const data = matchedData(request);
-    console.log(data); 
-  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...data}; // ...body, kinda like just fill in what the data says
-  
-  mockUsers.push(newUser);
-  return response.status(201).send(newUser);
-
+    const {body} = request;
+    const newUser = new User(body);
+    try{ 
+      // awaits since it's async
+      const savedUser = await newUser.save(); // to save into monogDB
+      return response.status(201).send(savedUser);
+    } catch (err){
+      console.log(err);
+      return response.sendStatus(400);
+    }
 });
 
 router.put("/api/users/:id",resolveIndexByUserId,  (request, response) => {

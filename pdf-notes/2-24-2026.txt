@@ -1,3 +1,89 @@
+3/24/2026
+4:15:00 - 4:42:00
+Data Base
+
+Connect to MongoDB database
+
+The following to download MongoDB (Community Edition)
+https://www.mongodb.com/try/download/community
+
+Install mongoose on vscode terminal
+	npm i mongoose
+
+Need the following header:
+	import { Mongoose } from "mongoose";
+
+// do the following to connect to your mongoDB local server
+mongoose.connect("mongodb://127.0.0.1:27017/testdb")
+  .then(() => console.log("Connected to Database"))
+  .catch((err) => console.log(`Error: ${err}`));
+
+
+If mongoDB failed to connect
+
+Download this in vscode:
+	npm install --save-dev nodemon
+Note: run it in bash since it needs to run on windows so wsl (Linux won’t work)
+
+// import mongoose
+import mongoose from "mongoose"
+
+// what components do we need to store int database
+const UserSchema = new mongoose.Schema({
+  username: {
+    type: mongoose.Schema.Types.String,
+    required: true,
+    unique: true, // this is so we cannot store the same username in our database
+  },
+  displayName : mongoose.Schema.Types.String,
+  displayName: {
+    type: mongoose.Schema.Types.String,
+    required: true,
+  }
+});
+
+export const User = mongoose.model("User", UserSchema);
+
+
+
+
+3/23/2026
+3:38:00 - 4:15:00
+Passport
+
+Passport-js to integrate local authentication.
+This is useful to authenticate users through things like facebook, discord and so on. But for this specific tutorial, just locally on your devices.
+
+Download the following in the terminal:
+	npm i passport passport-local
+
+Header needed:
+	import passport from "passport";
+
+// NOTE: passport work really well with express Sessions
+It should be initialized AFTER session and BEFORE routes
+
+app.use(passport.initialize());
+app.use(session());
+
+
+export default passport.use(
+  // validate the user, see if user exist and password matches
+  new Strategy( (username, password, done) => {
+    try{
+      const findUser = mockUsers.find( (user) => user.username === username);
+      // check to see if user is there
+      if (!findUser) throw new Error("User not found");
+      // check if password match
+      if (findUser.password != password)
+        throw new Error("Invalid Credentials");
+      done(null, findUser);
+    } catch (err){
+      done(err, null);
+    }
+  })
+)
+
 3/21/2026
 2:59:00 - 3:38:00
 Sessions
