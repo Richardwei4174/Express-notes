@@ -1,3 +1,51 @@
+3/28/2026
+
+4:55:00 - 5:13:00
+Session Store
+
+Currently our session gets lost if the server gets shut down. The session store helps with that. We’ll be storing the session information in the database so it can be recovered if anything does happen to the server.
+
+We’ll be using connect mongo
+
+So in your terminal, download the following:
+	npm i connect-mongo
+
+import MongoStore from "connect-mongo";
+
+app.use(session({
+  secret: "richard the dev",
+  saveUninitialized: false,
+  resave:false,
+  cookie: {
+    maxAge: 60000 * 60,
+  },
+  store: MongoStore.create({ 
+// this bolded code is all we need to add the session into mongoDB 
+    client: mongoose.connection.getClient(),
+  })
+}));
+
+
+
+4:42:00 - 4:55:00
+Hashing Password
+
+Saving a user's password raw directly in the database is risky if a hacker gets into the database. It’s better and safer to encrypt sensitive information.
+
+We’ll be downloading the following in the terminal
+	npm i bcrypt
+
+import bcrypt from 'bcrypt'; // to use bcrypt
+
+const saltRounds = 10;
+// we take the argument, let's call password
+export const hashPassword = (password) => {
+  const salt = bcrypt.genSaltSync(saltRounds); // auto generate a hash num
+  return bcrypt.hashSync(password, salt);
+ // using that hashnum, we can implement it into the password and return it so it’s encrypted
+};
+
+
 3/24/2026
 4:15:00 - 4:42:00
 Data Base

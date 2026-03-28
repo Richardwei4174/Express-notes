@@ -4,6 +4,7 @@ import {mockUsers} from "../utils/constants.mjs"
 import {createUserValidationSchema} from "../utils/validationSchemas.mjs";
 import {resolveIndexByUserId} from "../utils/middlewares.mjs";
 import {User} from "../mongoose/schemas/user.mjs";
+import { hashPassword } from "../utils/helpers.mjs";
 
 "express-validator";
 
@@ -54,7 +55,9 @@ router.post('/api/users',checkSchema(createUserValidationSchema)
     const result = validationResult(request);
     console.log(result);
     const {body} = request;
-    const newUser = new User(body);
+    const data = matchedData(request);
+    data.password = hashPassword(data.password);
+    const newUser = new User(data);
     try{ 
       // awaits since it's async
       const savedUser = await newUser.save(); // to save into monogDB
